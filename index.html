@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>匡くん</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>匡くん</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>選択</th>
+                    <th>No</th>
+                    <th>Task</th>
+                    <th>memo</th>
+                    <th>関連資料</th>
+                    <th>開始日</th>
+                    <th>期日</th>
+                </tr>
+            </thead>
+            <tbody id="taskTableBody">
+                <!-- タスクがここに追加される -->
+            </tbody>
+        </table>
+
+        <div class="form">
+            <input type="text" id="taskName" placeholder="Task名">
+            <input type="text" id="memo" placeholder="memo">
+            <input type="url" id="relatedLink" placeholder="関連資料のURL">
+            <input type="date" id="startDate">
+            <input type="date" id="dueDate">
+            <button id="addTaskButton">登録</button>
+            <button id="deleteTaskButton">削除</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
