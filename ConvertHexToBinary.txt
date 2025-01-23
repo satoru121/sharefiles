@@ -1,0 +1,32 @@
+Sub ConvertHexToBinary()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim hexValue As String
+    Dim binaryValue As String
+
+    ' シートを指定
+    Set ws = ThisWorkbook.Sheets("Sheet1")
+
+    ' A列の最終行を取得
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+    ' A列のデータをループしてB列に変換した値を記入
+    For i = 1 To lastRow
+        hexValue = ws.Cells(i, 1).Value
+
+        ' 16進数を10進数に変換し、それを2進数に変換
+        If Left(hexValue, 2) = "0x" Then
+            hexValue = Mid(hexValue, 3) ' "0x"を除去
+        End If
+
+        On Error Resume Next
+        binaryValue = WorksheetFunction.Dec2Bin(CLng("&H" & hexValue))
+        On Error GoTo 0
+
+        ws.Cells(i, 2).Value = binaryValue
+    Next i
+
+    MsgBox "変換が完了しました。", vbInformation
+End Sub
+
