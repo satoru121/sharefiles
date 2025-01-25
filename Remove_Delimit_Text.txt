@@ -1,0 +1,165 @@
+'使用前に挿入→ユーザーフォーム
+Sub CreateGUI()
+    ' Create a user form dynamically
+    Dim UserForm As Object
+    Set UserForm = VBA.UserForms.Add("UserForm1")
+    
+    With UserForm
+        .Caption = "Excel Data Processing"
+        .Width = 500
+        .Height = 400
+
+        ' Unwanted Characters Section
+        Dim lblRemoveChars As Object
+        Set lblRemoveChars = .Controls.Add("Forms.Label.1")
+        lblRemoveChars.Caption = "削除する文字/記号"
+        lblRemoveChars.Left = 20
+        lblRemoveChars.Top = 20
+
+        Dim txtRemoveChars As Object
+        Set txtRemoveChars = .Controls.Add("Forms.TextBox.1")
+        txtRemoveChars.Name = "txtRemoveChars"
+        txtRemoveChars.Left = 150
+        txtRemoveChars.Top = 20
+        txtRemoveChars.Width = 200
+
+        Dim btnRemoveChars As Object
+        Set btnRemoveChars = .Controls.Add("Forms.CommandButton.1")
+        btnRemoveChars.Caption = "実行"
+        btnRemoveChars.Name = "btnRemoveChars"
+        btnRemoveChars.Left = 370
+        btnRemoveChars.Top = 20
+        btnRemoveChars.Width = 70
+        
+        ' Delimiters Section
+        Dim lblDelimiters As Object
+        Set lblDelimiters = .Controls.Add("Forms.Label.1")
+        lblDelimiters.Caption = "区切り文字/記号"
+        lblDelimiters.Left = 20
+        lblDelimiters.Top = 70
+
+        Dim txtDelimiters As Object
+        Set txtDelimiters = .Controls.Add("Forms.TextBox.1")
+        txtDelimiters.Name = "txtDelimiters"
+        txtDelimiters.Left = 150
+        txtDelimiters.Top = 70
+        txtDelimiters.Width = 200
+
+        Dim btnDelimiters As Object
+        Set btnDelimiters = .Controls.Add("Forms.CommandButton.1")
+        btnDelimiters.Caption = "実行"
+        btnDelimiters.Name = "btnDelimiters"
+        btnDelimiters.Left = 370
+        btnDelimiters.Top = 70
+        btnDelimiters.Width = 70
+
+        ' テキストデータ生成のセクション
+        Dim btnGenerateText As Object
+        Set btnGenerateText = .Controls.Add("Forms.CommandButton.1")
+        btnGenerateText.Caption = "テキストデータ生成"
+        btnGenerateText.Name = "btnGenerateText"
+        btnGenerateText.Left = 20
+        btnGenerateText.Top = 120
+        btnGenerateText.Width = 150
+        
+        ' ボタンクリックイベントの設定
+        With btnGenerateText
+            .OnAction = "GenerateTextData"
+        End With
+    End With
+    
+    ' Show UserForm
+    UserForm.Show
+End Sub
+
+Sub GenerateTextData()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets(1)
+    
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    
+    Dim result As String
+    Dim rowIndex As Long
+    Dim colIndex As Long
+    Dim colCount As Long
+    
+    ' 列数を取得（A列から最右列まで）
+    colCount = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    
+    ' テキストファイルの作成
+    Dim filePath As String
+    filePath = ThisWorkbook.Path & "\text.txt"
+    
+    Dim fileNum As Integer
+    fileNum = FreeFile
+    
+    Open filePath For Output As #fileNum
+    
+    ' 各行のデータをテキスト形式に変換
+    For rowIndex = 1 To lastRow
+        result = ""
+        For colIndex = 1 To colCount
+            result = result & ws.Cells(rowIndex, colIndex).Value
+            If colIndex < colCount Then
+                result = result & ", "
+            End If
+        Next colIndex
+        ' テキストファイルに書き込み
+        Print #fileNum, result
+    Next rowIndex
+    
+    ' ファイルを閉じる
+    Close #fileNum
+    
+    MsgBox "テキストデータが生成されました。" & vbCrLf & "ファイルパス: " & filePath, vbInformation
+End Sub
+
+Sub RemoveUnwantedCharacters()
+    Dim removeChars As String
+    removeChars = Application.InputBox("削除する文字/記号を入力してください", Type:=2)
+
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets(1)
+
+    Dim cell As Range
+    For Each cell In ws.Range("A1:A" & ws.Cells(ws.Rows.Count, 1).End(xlUp).Row)
+        Dim char As Variant
+        For Each char In Split(removeChars, ",")
+            cell.Value = Replace(cell.Value, char, "")
+        Next char
+    Next cell
+
+    MsgBox "不要な文字/記号が削除されました。", vbInformation
+End Sub
+
+Sub SplitDataByDelimiter()
+    Dim delimiters As String
+    delimiters = Application.InputBox("区切り文字/記号を入力してください", Type:=2)
+
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets(1)
+
+    Dim cell As Range
+    Dim rowIndex As Long
+    rowIndex = 1
+
+    For Each cell In ws.Range("A1:A" & ws.Cells(ws.Rows.Count, 1).End(xlUp).Row)
+        Dim parts As Variant
+        parts = Split(cell.Value, delimiters)
+
+        Dim colIndex As Long
+        colIndex = 1
+
+        Dim part As Variant
+        For Each part In parts
+            ws.Cells(rowIndex, colIndex).Value = part
+            colIndex = colIndex + 1
+        Next part
+
+        rowIndex = rowIndex + 1
+    Next cell
+
+    MsgBox "データが区切られました。", vbInformation
+End Sub
+
