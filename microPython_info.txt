@@ -1,0 +1,12 @@
+import os
+import sys
+
+# ファームウェアのバージョン情報を取得
+print("=== MicroPython ファームウェア情報 ===")
+print(f"MicroPython バージョン: {os.uname().release}")
+print(f"プラットフォーム: {os.uname().sysname}")
+print(f"マシン情報: {os.uname().machine}")
+
+# Pythonバージョン情報を取得
+print("\n=== Python バージョン情報 ===")
+print(f"Python バージョン: {sys.version}")
