@@ -10,3 +10,17 @@ print(f"マシン情報: {os.uname().machine}")
 # Pythonバージョン情報を取得
 print("\n=== Python バージョン情報 ===")
 print(f"Python バージョン: {sys.version}")
+
+
+import gc
+
+# メモリ使用状況を表示
+print("メモリ使用状況:")
+print("空きメモリ:", gc.mem_free(), "バイト")
+print("合計メモリ:", gc.mem_alloc() + gc.mem_free(), "バイト")
+
+# ガベージコレクションを実行
+gc.collect()
+
+# 再度メモリ使用状況を確認
+print("ガベージコレクション後の空きメモリ:", gc.mem_free(), "バイト")
