@@ -24,3 +24,15 @@ gc.collect()
 
 # 再度メモリ使用状況を確認
 print("ガベージコレクション後の空きメモリ:", gc.mem_free(), "バイト")
+
+import gc
+
+def check_memory(label):
+    print(f"{label}:")
+    print(f"  使用メモリ: {gc.mem_alloc()} バイト")
+    print(f"  空きメモリ: {gc.mem_free()} バイト")
+    gc.collect()
+
+# 必要な箇所に挿入して確認
+check_memory("Before read")
+
