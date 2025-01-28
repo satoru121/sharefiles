@@ -66,3 +66,16 @@ Sub ConvertDataFormat()
     
     MsgBox "データの変換が完了しました！", vbInformation
 End Sub
+
+pdbを使ったブレークポイント設定
+import pdb
+
+for i in range(10):
+    print(f"ループ中: {i}")
+    if i == 5:
+        pdb.set_trace()  # ここでデバッガが起動
+    print("次のループへ")
+
+n（次の行に進む）
+c（次のブレークポイントまで進む）
+q（デバッグを終了）
