@@ -36,3 +36,33 @@ def check_memory(label):
 # 必要な箇所に挿入して確認
 check_memory("Before read")
 
+Sub ConvertDataFormat()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim inputData As String
+    Dim outputData As String
+    Dim parts() As String
+    
+    ' 対象のワークシートを設定
+    Set ws = ThisWorkbook.Sheets(1) ' 1つ目のシートを対象としています
+    
+    ' A列の最終行を取得
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' データ変換処理
+    For i = 1 To lastRow
+        inputData = ws.Cells(i, 1).Value ' A列のデータを取得
+        If inputData Like "Write * *" Then ' フォーマットに一致する場合
+            ' 空白で分割
+            parts = Split(inputData, " ")
+            If UBound(parts) = 2 Then ' 要素数が3つ（"Write", x, y）の場合
+                ' 指定形式に変換
+                outputData = "writei2c(" & parts(1) & "," & parts(2) & ")"
+                ws.Cells(i, 2).Value = outputData ' B列に出力
+            End If
+        End If
+    Next i
+    
+    MsgBox "データの変換が完了しました！", vbInformation
+End Sub
