@@ -79,3 +79,35 @@ for i in range(10):
 n（次の行に進む）
 c（次のブレークポイントまで進む）
 q（デバッグを終了）
+
+
+from machine import Pin
+import time
+
+# ボタンのGPIOピン (適宜変更)
+BUTTON_PIN = 14
+
+# フラグの初期値
+flag = 0
+
+# ボタンの設定 (内部プルアップ有効)
+button = Pin(BUTTON_PIN, Pin.IN, Pin.PULL_UP)
+
+# 前回のボタン状態
+last_state = button.value()
+
+print("Press the button to toggle the flag (0 ⇔ 1)")
+
+while True:
+    current_state = button.value()
+    
+    # ボタンが押された（立ち下がりエッジ）
+    if last_state == 1 and current_state == 0:
+        flag = 1 - flag  # フラグをトグル
+        print(f"Button Pressed! Flag is now: {flag}")
+    
+    # 状態の更新
+    last_state = current_state
+
+    # チャタリング防止
+    time.sleep(0.05)
