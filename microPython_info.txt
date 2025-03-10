@@ -111,3 +111,58 @@ while True:
 
     # チャタリング防止
     time.sleep(0.05)
+
+
+Option Explicit
+
+' FT260の制御用オブジェクト（適宜、ライブラリを参照設定してください）
+Dim FT260 As Object
+
+Sub ControlFT260()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' シート名を適宜変更
+    
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row ' 最終行の取得
+    
+    Dim i As Long
+    For i = 8 To lastRow ' 8行目から処理を開始（データ開始行）
+        Dim deviceAddr As Integer
+        Dim bank As Integer
+        Dim regAddr As Integer
+        Dim readBytes As Integer
+        Dim writeData As String
+        
+        deviceAddr = ws.Cells(i, 2).Value ' B列：デバイスアドレス
+        bank = ws.Cells(i, 3).Value       ' C列：Bank番号
+        regAddr = ws.Cells(i, 4).Value    ' D列：レジスタアドレス
+        readBytes = ws.Cells(i, 5).Value  ' E列：Readバイト数
+        writeData = ws.Cells(i, 6).Value  ' F列：Writeデータ
+        
+        If readBytes > 0 Then
+            ' Read処理
+            Dim readResult As String
+            readResult = ReadFromFT260(deviceAddr, bank, regAddr, readBytes)
+            ws.Cells(i, 8).Value = readResult ' H列：Resultに格納
+        End If
+        
+        If writeData <> "" Then
+            ' Write処理
+            WriteToFT260 deviceAddr, bank, regAddr, writeData
+        End If
+    Next i
+End Sub
+
+' FT260に対して読み込みを行う関数
+Function ReadFromFT260(deviceAddr As Integer, bank As Integer, regAddr As Integer, readBytes As Integer) As String
+    ' ここにFT260のI2C通信を使った読み込み処理を実装
+    ' 例：仮の値を返す
+    ReadFromFT260 = "0xAB 0xCD" ' 実際にはI2Cから取得した値を返す
+End Function
+
+' FT260に対して書き込みを行うサブルーチン
+Sub WriteToFT260(deviceAddr As Integer, bank As Integer, regAddr As Integer, writeData As String)
+    ' ここにFT260のI2C通信を使った書き込み処理を実装
+    ' 例：デバッグ用のメッセージを出力
+    Debug.Print "Write to FT260: Device=" & deviceAddr & ", Bank=" & bank & ", Reg=" & regAddr & ", Data=" & writeData
+End Sub
