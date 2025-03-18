@@ -1,0 +1,42 @@
+import time
+
+# 書き込み用関数
+def i2cwrite_1byte(deviceaddress, address, data):
+    i2c.writeto_mem(int(deviceaddress), address, bytes([data]))
+    time.sleep_ms(1)  # I2C待機
+
+# 読み込み用関数
+def i2cread_1byte(deviceaddress, address):
+    dataread = i2c.readfrom_mem(int(deviceaddress), address, 1)
+    time.sleep_us(500)  # I2C待機
+    return dataread[0]
+
+# 改善したエラーダンプ関数
+def i2c_errdump():
+    device_addresses = [0x20, 0x21, 0x22, 0x23]
+    banks = range(0x00, 0x05)  # 0x00 〜 0x04
+    output_file = "i2c_dump_result.txt"
+    
+    with open(output_file, 'w') as f:
+        for deviceaddress in device_addresses:
+            for bank in banks:
+                i2cwrite_1byte(deviceaddress, 0xFF, bank)  # bank指定で書き込み
+                f.write(f"\n=== Device Address: {hex(deviceaddress)}, Bank: {hex(bank)} ===\n")
+                print(f"\n=== Device Address: {hex(deviceaddress)}, Bank: {hex(bank)} ===")
+                
+                for address in range(0x00, 0x100):  # 0x00 〜 0xFF
+                    try:
+                        data = i2cread_1byte(deviceaddress, address)
+                        log = f"Read Data: {hex(deviceaddress)} / {hex(bank)} / {hex(address)} / {hex(data)}"
+                        print(log)
+                        f.write(log + "\n")
+                    except Exception as e:
+                        error_log = f"Error at Device: {hex(deviceaddress)}, Bank: {hex(bank)}, Address: {hex(address)} - {str(e)}"
+                        print(error_log)
+                        f.write(error_log + "\n")
+
+                    time.sleep_ms(10)  # 10msの待機
+
+# 実行
+i2c_errdump()
+time.sleep_ms(5)
