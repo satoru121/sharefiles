@@ -40,3 +40,94 @@ def i2c_errdump():
 # 実行
 i2c_errdump()
 time.sleep_ms(5)
+
+
+
+
+
+Option Explicit
+
+' FT260 APIの関数を定義
+Declare PtrSafe Function FT260_OpenByIndex Lib "FT260API.dll" (ByVal index As Integer, ByRef handle As Long) As Long
+Declare PtrSafe Function FT260_Close Lib "FT260API.dll" (ByVal handle As Long) As Long
+Declare PtrSafe Function FT260_I2CMaster_Write Lib "FT260API.dll" (ByVal handle As Long, ByVal deviceAddress As Byte, ByVal flag As Byte, ByRef buffer As Any, ByVal bufferSize As Long, ByRef bytesWritten As Long) As Long
+Declare PtrSafe Function FT260_I2CMaster_Read Lib "FT260API.dll" (ByVal handle As Long, ByVal deviceAddress As Byte, ByVal flag As Byte, ByRef buffer As Any, ByVal bufferSize As Long, ByRef bytesRead As Long) As Long
+
+Sub ExecuteI2CCommands()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim handle As Long
+    Dim status As Long
+    
+    ' ワークシート設定
+    Set ws = ThisWorkbook.Sheets(1) ' シート1を使用
+    lastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row ' B列（I2CADR）の最終行を取得
+    
+    ' FT260を開く
+    status = FT260_OpenByIndex(0, handle)
+    If status <> 0 Then
+        MsgBox "FT260の接続に失敗しました。エラーコード: " & status, vbCritical
+        Exit Sub
+    End If
+    
+    ' 各行のデータを順に処理
+    For i = 5 To lastRow  ' 5行目から最終行まで処理
+        Dim deviceAddr As Byte
+        Dim bank As Byte
+        Dim addr As Byte
+        Dim readSize As Byte
+        Dim writeData As Byte
+        Dim result As Byte
+        Dim bytesProcessed As Long
+        
+        ' セルの値を取得し、16進数として扱う
+        deviceAddr = CByte("&H" & ws.Cells(i, 2).Text) ' I2CADR (B列)
+        bank = CByte("&H" & ws.Cells(i, 3).Text)       ' BANK (C列)
+        addr = CByte("&H" & ws.Cells(i, 4).Text)       ' ADD (D列)
+        
+        ' Read処理
+        If ws.Cells(i, 5).Value <> "" Then
+            readSize = CByte("&H" & ws.Cells(i, 5).Text) ' READ (E列)
+            
+            ' レジスタアドレスを送信
+            Dim writeBuffer(0) As Byte
+            writeBuffer(0) = addr
+            status = FT260_I2CMaster_Write(handle, deviceAddr, 0, writeBuffer(0), 1, bytesProcessed)
+            If status <> 0 Then
+                ws.Cells(i, 7).Value = "ERR"
+                GoTo NextIteration
+            End If
+            
+            ' データを読み取る
+            Dim readBuffer(0) As Byte
+            status = FT260_I2CMaster_Read(handle, deviceAddr, 0, readBuffer(0), readSize, bytesProcessed)
+            If status = 0 Then
+                ws.Cells(i, 7).Value = Right("0" & Hex(readBuffer(0)), 2) ' 16進数フォーマット
+            Else
+                ws.Cells(i, 7).Value = "ERR"
+            End If
+        End If
+        
+        ' Write処理
+        If ws.Cells(i, 6).Value <> "" Then
+            writeData = CByte("&H" & ws.Cells(i, 6).Text) ' WRITE (F列)
+            
+            Dim writeDataBuffer(1) As Byte
+            writeDataBuffer(0) = addr
+            writeDataBuffer(1) = writeData
+            
+            status = FT260_I2CMaster_Write(handle, deviceAddr, 0, writeDataBuffer(0), 2, bytesProcessed)
+            If status <> 0 Then
+                ws.Cells(i, 7).Value = "ERR"
+            End If
+        End If
+        
+NextIteration:
+    Next i
+    
+    ' FT260を閉じる
+    FT260_Close handle
+    
+    MsgBox "I2C処理が完了しました。", vbInformation
+End Sub
