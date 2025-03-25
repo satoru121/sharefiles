@@ -131,3 +131,32 @@ NextIteration:
     
     MsgBox "I2C処理が完了しました。", vbInformation
 End Sub
+
+
+
+
+Sub CopyEvery5thRow()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim srcRow As Long
+    Dim dstRow As Long
+    
+    ' アクティブシートを設定（必要に応じて変更）
+    Set ws = ActiveSheet
+    
+    ' A列の最終行を取得
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    
+    ' C列の書き込み開始行（1行目から）
+    dstRow = 1
+    
+    ' A列を5行おきに取得
+    For srcRow = 1 To lastRow Step 5
+        ws.Cells(dstRow, 3).Value = ws.Cells(srcRow, 1).Value
+        dstRow = dstRow + 1
+    Next srcRow
+    
+    ' 完了メッセージ
+    MsgBox "A列の値を5行おきにC列へコピーしました！", vbInformation
+End Sub
+
