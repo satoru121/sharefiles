@@ -13,3 +13,12 @@ lower = value & 0xFF
 print(f"Upper: {upper:#04x}")
 print(f"Middle: {middle:#04x}")
 print(f"Lower: {lower:#04x}")
+
+Dim readSize As Long
+Dim bytesProcessed As Long
+Dim readBuffer(255) As Byte
+
+readSize = 1 ' 読み取るバイト数
+bytesProcessed = 0
+
+ftstatus = FT260_I2CMaster_Read(ftHandle, i2cAddr, 0, readBuffer(0), readSize, bytesProcessed)
