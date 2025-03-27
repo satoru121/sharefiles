@@ -22,3 +22,11 @@ readSize = 1 ' 読み取るバイト数
 bytesProcessed = 0
 
 ftstatus = FT260_I2CMaster_Read(ftHandle, i2cAddr, 0, readBuffer(0), readSize, bytesProcessed)
+Dim readSize As Long
+Dim bytesProcessed As Long
+Dim readBuffer(4) As Byte ' 5バイト分のバッファ (0~4の5つの要素)
+
+readSize = 5 ' 読み取るバイト数
+bytesProcessed = 0
+
+ftstatus = FT260_I2CMaster_Read(ftHandle, i2cAddr, 0, readBuffer(0), readSize, bytesProcessed)
