@@ -204,6 +204,8 @@ Execute_I2C_Command を実行すれば、設定された速度でI2C通信が行
 
 
 
+Declare PtrSafe Function FT260_I2CMaster_SetClockSpeed Lib "C:\VTemo\Lib\ft260-wl-1.1.8-w\imports\ft260-wl\ft260.dll" _
+    (ByVal ft260Handle As Long, ByVal kbps As Long) As FT260_STATUS
 
 
 
