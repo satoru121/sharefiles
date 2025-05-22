@@ -160,6 +160,51 @@ Function ReadFromFT260(deviceAddr As Integer, bank As Integer, regAddr As Intege
     ReadFromFT260 = "0xAB 0xCD" ' 実際にはI2Cから取得した値を返す
 End Function
 
+スイッチスクリプト
+from machine import Pin
+import time
+
+# GP4: 出力（常にHigh）
+gp4 = Pin(4, Pin.OUT)
+gp4.value(1)
+
+# GP5: 入力（切替検出用）
+gp5 = Pin(5, Pin.IN, Pin.PULL_DOWN)  # 安定化のため残すがなくても動作はする
+
+# 最後に検出した状態を記録
+previous_state = gp5.value()
+
+def run_script_A():
+    print("▶ スクリプトA 実行中")
+    for i in range(3):
+        print(f"A {i}")
+        time.sleep(0.3)
+
+def run_script_B():
+    print("▶ スクリプトB 実行中")
+    for i in range(3):
+        print(f"B {i}")
+        time.sleep(0.3)
+
+while True:
+    current_state = gp5.value()
+
+    if current_state != previous_state:
+        # 状態が変化したので実行
+        if current_state == 1:
+            run_script_A()
+        else:
+            run_script_B()
+        previous_state = current_state  # 状態を更新
+
+    time.sleep(0.01)  # CPU負荷軽減用の小休止
+
+
+
+
+
+
+
 ' FT260に対して書き込みを行うサブルーチン
 Sub WriteToFT260(deviceAddr As Integer, bank As Integer, regAddr As Integer, writeData As String)
     ' ここにFT260のI2C通信を使った書き込み処理を実装
