@@ -201,6 +201,45 @@ while True:
 
 
 
+from machine import Pin
+import time
+
+# GPIO4をHigh出力に設定
+pin_output = Pin(4, Pin.OUT)
+pin_output.value(1)
+
+# GPIO5を入力に設定（プルダウン抵抗あり）
+pin_input = Pin(5, Pin.IN, Pin.PULL_DOWN)
+
+# 現在の状態を保持
+prev_state = pin_input.value()
+
+# 状態に応じた処理
+def script_A():
+    print("スクリプトAを実行（GPIO5がHIGH）")
+
+def script_B():
+    print("スクリプトBを実行（GPIO5がLOW）")
+
+# 初期状態に応じたスクリプト実行
+if prev_state == 1:
+    script_A()
+else:
+    script_B()
+
+# 変化を監視して処理を切り替えるループ
+while True:
+    current_state = pin_input.value()
+    if current_state != prev_state:
+        print("スイッチが切り替わりました")
+        if current_state == 1:
+            script_A()
+        else:
+            script_B()
+        prev_state = current_state
+    time.sleep(0.05)  # チャタリング防止のために少し待つ
+
+
 
 
 
