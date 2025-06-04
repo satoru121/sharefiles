@@ -290,3 +290,40 @@ while True:
             script_B()
         prev_state = current_state  # 状態更新（これが重要！）
     time.sleep(0.05)  # チャタリング防止
+
+
+
+from machine import Pin
+import time
+
+# GPIO8を常にHigh出力に設定
+pin_output = Pin(8, Pin.OUT)
+pin_output.value(1)
+
+# GPIO9を入力に設定（プルダウン抵抗あり）
+pin_input = Pin(9, Pin.IN, Pin.PULL_DOWN)
+
+# 処理ループA（GPIO9がHIGHのとき）
+def script_A():
+    print("スクリプトAを開始（GPIO9がHIGH）")
+    while pin_input.value() == 1:
+        print("A処理ループ中...")
+        time.sleep(0.5)
+
+# 処理ループB（GPIO9がLOWのとき）
+def script_B():
+    print("スクリプトBを開始（GPIO9がLOW）")
+    while pin_input.value() == 0:
+        print("B処理ループ中...")
+        time.sleep(0.5)
+
+# 初期状態に応じて起動
+while True:
+    current_state = pin_input.value()
+
+    if current_state == 1:
+        script_A()
+    else:
+        script_B()
+        
+    time.sleep(0.05)  # チャタリング防止
