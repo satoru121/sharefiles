@@ -124,3 +124,67 @@ Sub ConvertWRITEOnly()
 
     MsgBox "WRITE命令だけを変換しました。", vbInformation
 End Sub
+
+
+
+
+
+Sub ConvertWRITECommandFlexible()
+    Dim inputFile As String
+    Dim outputFile As String
+    Dim inputLine As String
+    Dim inputNum As Integer, outputNum As Integer
+    Dim lineLower As String
+    Dim parts() As String
+    Dim i As Integer
+    Dim addr As String
+    Dim dataBytes As String
+
+    ' ファイルパス（Excelファイルと同じフォルダに input.txt を置く）
+    inputFile = ThisWorkbook.Path & "\input.txt"
+    outputFile = ThisWorkbook.Path & "\output.txt"
+
+    inputNum = FreeFile
+    Open inputFile For Input As #inputNum
+
+    outputNum = FreeFile
+    Open outputFile For Output As #outputNum
+
+    Do While Not EOF(inputNum)
+        Line Input #inputNum, inputLine
+        lineLower = LCase(inputLine)
+
+        If Left(lineLower, 5) = "write" Then
+            ' WRITE命令の後ろを取り出してカンマで分割（スペースは無視）
+            parts = Split(Mid(inputLine, 6), ",")
+
+            If UBound(parts) >= 1 Then
+                addr = Trim(parts(0))
+                dataBytes = ""
+                For i = 1 To UBound(parts)
+                    If LCase(Trim(parts(i))) <> "stop" Then
+                        dataBytes = dataBytes & Trim(parts(i)) & ", "
+                    End If
+                Next i
+
+                ' 最後のカンマとスペースを削除
+                If Right(dataBytes, 2) = ", " Then
+                    dataBytes = Left(dataBytes, Len(dataBytes) - 2)
+                End If
+
+                Print #outputNum, "i2cwrite_1byte(" & addr & ", " & dataBytes & ")"
+            Else
+                ' WRITE命令の形式がおかしい場合はそのまま
+                Print #outputNum, inputLine
+            End If
+        Else
+            ' WRITE以外はそのまま出力
+            Print #outputNum, inputLine
+        End If
+    Loop
+
+    Close #inputNum
+    Close #outputNum
+
+    MsgBox "WRITE命令の変換が完了しました！", vbInformation
+End Sub
