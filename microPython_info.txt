@@ -327,3 +327,54 @@ while True:
         script_B()
         
     time.sleep(0.05)  # チャタリング防止
+
+
+Sub ConvertI2CFormat()
+    Dim inputFile As String
+    Dim outputFile As String
+    Dim line As String
+    Dim inputNum As Integer, outputNum As Integer
+    Dim regAddr As String, dataVal As String
+    Dim parts() As String
+
+    ' ファイルパス（適宜変更）
+    inputFile = ThisWorkbook.Path & "\input.txt"
+    outputFile = ThisWorkbook.Path & "\output.txt"
+
+    ' ファイルを開く
+    inputNum = FreeFile
+    Open inputFile For Input As #inputNum
+
+    outputNum = FreeFile
+    Open outputFile For Output As #outputNum
+
+    Do While Not EOF(inputNum)
+        Line Input #inputNum, line
+        
+        ' コメントを削除（#以降を除外）
+        If InStr(line, "#") > 0 Then
+            line = Left(line, InStr(line, "#") - 1)
+        End If
+
+        line = Trim(line)
+        
+        ' "WRITE"を含む行だけ処理
+        If UCase(Left(line, 5)) = "WRITE" Then
+            ' WRITE 〇〇h, ▲▲h, STOP を , で分解
+            parts = Split(line, ",")
+            If UBound(parts) >= 1 Then
+                regAddr = Trim(Replace(parts(0), "WRITE", "", , , vbTextCompare))
+                dataVal = Trim(parts(1))
+                
+                ' 出力フォーマットに変換
+                Print #outputNum, "i2cwrite-1byte(" & regAddr & ", " & dataVal & ")"
+            End If
+        End If
+    Loop
+
+    ' ファイルを閉じる
+    Close #inputNum
+    Close #outputNum
+
+    MsgBox "変換が完了しました。" & vbCrLf & "出力ファイル: " & outputFile, vbInformation
+End Sub
