@@ -30,3 +30,50 @@ Sub ConvertHexToBinary()
     MsgBox "変換が完了しました。", vbInformation
 End Sub
 
+
+
+Sub SimpleConvertI2CFormat_Underscore()
+    Dim inputFile As String
+    Dim outputFile As String
+    Dim inputLine As String
+    Dim inputNum As Integer, outputNum As Integer
+    Dim parts() As String
+    Dim addr As String, data As String
+
+    ' ファイルパス（Excelファイルと同じ場所に input.txt を置いてください）
+    inputFile = ThisWorkbook.Path & "\input.txt"
+    outputFile = ThisWorkbook.Path & "\output.txt"
+
+    ' 入出力ファイルを開く
+    inputNum = FreeFile
+    Open inputFile For Input As #inputNum
+
+    outputNum = FreeFile
+    Open outputFile For Output As #outputNum
+
+    ' 行ごとに処理
+    Do While Not EOF(inputNum)
+        Line Input #inputNum, inputLine
+        inputLine = Trim(inputLine)
+
+        If LCase(Left(inputLine, 5)) = "write" Then
+            ' "WRITE" を削除し、残りをカンマで分解
+            inputLine = Mid(inputLine, 6)
+            parts = Split(inputLine, ",")
+
+            If UBound(parts) >= 1 Then
+                addr = Trim(parts(0))
+                data = Trim(parts(1))
+                ' アンダーバー形式で出力
+                Print #outputNum, "i2cwrite_1byte(" & addr & ", " & data & ")"
+            End If
+        End If
+    Loop
+
+    ' ファイルを閉じる
+    Close #inputNum
+    Close #outputNum
+
+    MsgBox "変換が完了しました！（アンダーバー版）", vbInformation
+End Sub
+
