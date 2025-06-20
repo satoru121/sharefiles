@@ -77,3 +77,50 @@ Sub SimpleConvertI2CFormat_Underscore()
     MsgBox "変換が完了しました！（アンダーバー版）", vbInformation
 End Sub
 
+
+
+Sub ConvertWRITEOnly()
+    Dim inputFile As String
+    Dim outputFile As String
+    Dim inputLine As String
+    Dim inputNum As Integer, outputNum As Integer
+    Dim parts() As String
+    Dim addr As String, data As String
+
+    ' ファイルパス（Excelファイルと同じフォルダに input.txt を用意）
+    inputFile = ThisWorkbook.Path & "\input.txt"
+    outputFile = ThisWorkbook.Path & "\output.txt"
+
+    ' ファイルオープン
+    inputNum = FreeFile
+    Open inputFile For Input As #inputNum
+
+    outputNum = FreeFile
+    Open outputFile For Output As #outputNum
+
+    Do While Not EOF(inputNum)
+        Line Input #inputNum, inputLine
+        inputLine = Trim(inputLine)
+
+        If LCase(Left(inputLine, 5)) = "write" Then
+            ' WRITE命令を変換
+            parts = Split(Mid(inputLine, 6), ",")
+            If UBound(parts) >= 1 Then
+                addr = Trim(parts(0))
+                data = Trim(parts(1))
+                Print #outputNum, "i2cwrite_1byte(" & addr & ", " & data & ")"
+            Else
+                ' WRITEでもフォーマットが正しくない場合はそのまま出力
+                Print #outputNum, inputLine
+            End If
+        Else
+            ' WRITE命令以外はそのまま出力
+            Print #outputNum, inputLine
+        End If
+    Loop
+
+    Close #inputNum
+    Close #outputNum
+
+    MsgBox "WRITE命令だけを変換しました。", vbInformation
+End Sub
